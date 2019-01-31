@@ -326,12 +326,18 @@ def check_iters(ctx, param, value):
 @click.option('--mergemips/--sepmips', 'mergeMIPs',
               help="Combine MIP files into single hyperstack (or not).",
               default=DEFAULTS['mergeMIPs'][0], show_default=True)
+@click.option('--FlatStart', 'flatStart',
+              help="Use the median image for decon as initial guess.",
+              default=DEFAULTS['FlatStart'][0], show_default=True)
+@click.option('--DoNotAdjustResForFFT', 'DoNotAdjustResForFFT',
+              help="If selected the image rather than resolution adjusted for FFT.",
+              default=DEFAULTS['DoNotAdjustResForFFT'][0], show_default=True)
 @click.option('--uint16/--uint32', is_flag=True,
               help="Save results as 16 (default) or 32- bit",
               default=DEFAULTS['uint16'][0])
-@click.option('-p', '--bleachCorrect', 'bleachCorrection', is_flag=True,
-              help="Perform bleach correction on timelapse data",
-              default=DEFAULTS['bleachCorrection'][0], show_default=True,)
+@click.option('-p', '--NoBleachCorrect', 'NoBleachCorrection', is_flag=True,
+              help="If checked, no bleach correction performed on timelapse data",
+              default=DEFAULTS['NoBleachCorrection'][0], show_default=True,)
 @click.option('--trimX', 'trimX', default=DEFAULTS['trimX'][0], show_default=True,
               metavar='<LEFT RIGHT>', nargs=2, type=int,
               help="Number of X pixels to trim off raw data before processing. "
@@ -706,7 +712,7 @@ def show(config, path, stack, timepoint):
 
 
 @cli.command(short_help='Install cudaDeconv libraries and binaries')
-@click.argument('path', type=click.Path(exists=True, file_okay=True, resolve_path=True))
+@click.argument('path', type=click.Path(exists=True, file_okay=False, resolve_path=True))
 @click.option('-n', '--dryrun', is_flag=True, default=False,
               help='Just show what files would be moved to where')
 def install(path, dryrun):
@@ -717,12 +723,12 @@ def install(path, dryrun):
     library and binary files will be installed to the LLSpy installation.
 
     """
-    if os.environ.get('CONDA_DEFAULT_ENV', '') in ('root', 'base'):
+    if os.environ.get('CONDA_DEFAULT_ENV', '') == 'root':
         if not click.confirm('It looks like you\'re in the root conda environment... '
         'It is recommended that you install llspy in its own environment.\n'
         'Continue?'):
             return
-    libinstall.install(path, dryrun)
+    libinstall.install(path)
 
 
 def del_sysconfig(ctx, param, value):

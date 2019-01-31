@@ -94,17 +94,17 @@ else:
         # The actual decon
         RL_interface = cudaLib.RL_interface
         RL_interface.restype = ctypes.c_int
-        RL_interface.argtypes = [np.ctypeslib.ndpointer(ctypes.c_ushort, flags="C_CONTIGUOUS"),  # im
-                        ctypes.c_int,                                                   # nx
-                        ctypes.c_int,                                                   # ny
-                        ctypes.c_int,                                                   # nz
-                        np.ctypeslib.ndpointer(ctypes.c_float, flags="C_CONTIGUOUS"),
-                        np.ctypeslib.ndpointer(ctypes.c_float, flags="C_CONTIGUOUS"),   # result
-                        ctypes.c_float,                                                 # background
-                        ctypes.c_bool,                                                  # doRescale
-                        ctypes.c_bool,                                                  # saveDeskewed
-                        ctypes.c_int,                                                   # nIters
-                        ctypes.c_int]                                                   # shift
+        RL_interface.argtypes = [np.ctypeslib.ndpointer(ctypes.c_ushort, flags="C_CONTIGUOUS"), # im
+                        ctypes.c_int,                                                   		# nx
+                        ctypes.c_int,                                                   		# ny
+                        ctypes.c_int,                                                   		# nz
+                        np.ctypeslib.ndpointer(ctypes.c_float, flags="C_CONTIGUOUS"),   		# deconResult
+                        np.ctypeslib.ndpointer(ctypes.c_float, flags="C_CONTIGUOUS"),   		# deskewResult
+                        ctypes.c_float,                                                 		# background
+                        ctypes.c_bool,                                                  		# doRescale
+                        ctypes.c_bool,                                                  		# saveDeskewed
+                        ctypes.c_int,                                                   		# nIters
+                        ctypes.c_int]                                                   		# shift
 
         # call after
         RL_cleanup = cudaLib.RL_cleanup
@@ -254,6 +254,8 @@ def quickDecon(im, otfpath, savedeskew=False, **kwargs):
         width       int
         shift       int
         rotate      float
+		nobleach	bool
+		flatstart	bool
     """
     requireCUDAlib()
     RL_init(im.shape, otfpath, **kwargs)

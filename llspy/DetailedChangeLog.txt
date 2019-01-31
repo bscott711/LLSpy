@@ -1,0 +1,86 @@
+ChangeLog
+
+2019-01-30 B.Scott
+cudabinwrapper.py Line 40: Commented Line
+cudabinwrapper.py Inserted Line 41: output = subprocess.check_output([binary, "--filename-pattern '' --input-dir ./ --otf-file '' --DevQuery"])
+cudabinwrapper.py (original 220, now line 221): Commented Line
+cudabinwrapper.py Inserted Line 222: return(self.run("--filename-pattern '' --input-dir ./ --otf-file '' --DevQuery"))
+cudabinwrapper.py Original Line 131, now line 132: Replaced bleachCorrection with NoBleachCorrection
+
+2019-01-31 B.Scott
+cudabinwrapper.py Line 131: Commented rMIP. This is not a choice in the new cudaDeconv
+cudabinwrapper.py Line 132-134: Added flags: NoBleachCorrection, DoNotAdjustResForFFT, FlatStart. 
+
+cuadbinwrapper.py
+	Line 218: This is were the command is generated.
+	Line 333: This has how the booleans are used
+
+libcudawrapper Line 257-258: Added nobleach and flatstart to comment
+Come back to line 294
+
+
+2019-01-31 B.Scott
+llsdir.py Line 373: Commented Line
+llsdir.py Line 375: Changed bleachCorrection to NoBleachCorrection. # Track down where P.bleachCorrection is first set.
+# P = exp.localParams(**kwargs) llsdir.py Line 353
+# The function is defined at line 853
+# Schema list
+llsdir.py Line 382: Added 'DoNotAdjustResForFFT': P.adjustRes 
+llsdir.py Line 382: Added 'FlatStart': P.flatStart
+
+llsdir.py Line 695: This is where the partial files are discarded. However, even if the files differ slightly it is throwing it away.
+We should probably set the threshold using: thresh=ny*nx*bitDepth/8
+
+llsdir.py Line 695: Added thresh=ny*nx*bit_depth/8 to comment only
+llsdir.py Line 700: Replaced 1000 with thresh #This is Described on line 695
+
+llsdir.py Line 859: Made NoBleachCorrection=True
+llsdir.py Line 861: 'NoBleachCorrection'
+
+
+2019-01-31 B.Scott
+schema.py Line 81: 'NoBleachCorrection'  : True,         'no photobleach correction'),
+schema.py Line 82: 'FlatStart'			 :(False,		 'Use the median of image for start of decon'),
+schema.py Line 83: 'DoNotAdjustResForFFT':(False,		 'Do not adjust resolution for FFT during Decon'),
+
+llspy_cli.py Line 332-334: @click.option('-p', '--NoBleachCorrect', 'NoBleachCorrection', is_flag=True,
+              help="If checked, no bleach correction performed on timelapse data",
+              default=DEFAULTS['NoBleachCorrection'][0], show_default=True,)
+			  
+main_gui.py Line 1300-1302: self.bleachCorrectionCheckBox.setToolTip(_translate("Main_GUI", "Modify intensity values of timelapse data to\n"
+"minimize the appearance of photobleaching if unchecked."))
+        self.bleachCorrectionCheckBox.setText(_translate("Main_GUI", "No Bleach Correction if Checked"))
+	
+mainwindow.py Line: 1467 Changed to NoBleachCorrection
+
+# Add in two check boxes to the decon window: FlatStart and DoNotAdjustResForFFT
+main_gui.py Line 1219: This has the deconJoinMIPCheckBox. Follow this to make the other two.
+Lines 387-392 make the box.
+
+main_gui.py Line 393-403: Added the following
+        self.flatStartCheckBox = QtWidgets.QCheckBox(self.tool_deconvolution)
+        self.flatStartCheckBox.setEnabled(True)
+        self.flatStartCheckBox.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.flatStartCheckBox.setChecked(True)
+        self.flatStartCheckBox.setObjectName("flatStartCheckBox")
+        self.verticalLayout_14.addWidget(self.flatStartCheckBox)
+
+        self.resFFTCheckBox = QtWidgets.QCheckBox(self.tool_deconvolution)
+        self.resFFTCheckBox.setEnabled(True)
+        self.resFFTCheckBox.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.resFFTCheckBox.setChecked(True)
+        self.resFFTCheckBox.setObjectName("resFFTCheckBox")
+        self.verticalLayout_14.addWidget(self.resFFTCheckBox)
+
+main_gui.py Line: 1234 Inserted the following:	
+        self.flatStartCheckBox.setToolTip(_translate("Main_GUI", "Attempt to suprress noise in decon by using\n"
+"median image as the starting point\n"
+"Adds the flag --FlatStart"))
+        self.flatStartCheckBox.setText(_translate("Main_GUI", "Use initial median in cudaDeconv"))
+        self.resFFTCheckBox.setToolTip(_translate("Main_GUI", "Checking this adds the flag\n"
+"--DoNotAdjustResForFFT"))
+        self.resFFTCheckBox.setText(_translate("Main_GUI", "Do not adjust res for FFT"))
+
+mainwindow.py Line 1464: Added the following		
+'FlatStart': self.flatStartCheckBox.isChecked(),
+'DoNotAdjustResForFFT': self.resFFTCheckBox.isChecked(),

@@ -37,7 +37,8 @@ def nGPU(binary=None):
     if binary is None:
         binary = get_bundled_binary()
     try:
-        output = subprocess.check_output([binary, '-Q'])
+        #output = subprocess.check_output([binary, '-Q'])
+        output = subprocess.check_output([binary, "--filename-pattern '' --input-dir ./ --otf-file '' --DevQuery"])
         return int(re.match(b'Detected\s(?P<numGPU>\d+)\sCUDA', output).groups()[0])
     except Exception:
         return 0
@@ -64,18 +65,18 @@ def get_bundled_binary(name='cudaDeconv'):
     if getattr(sys, 'frozen', False):
         binPath = sys._MEIPASS
     else:
-        if os.environ.get('CONDA_PREFIX', False):
-            base = os.environ['CONDA_PREFIX']
-            if PLAT == 'win32':
-                binPath = os.path.join(base, 'Library', 'bin')
-            else:
-                binPath = os.path.join(base, 'bin')
-        else:
-            binPath = ''
+        thisDirectory = os.path.dirname(__file__)
+        binPath = os.path.join(thisDirectory, os.pardir, os.pardir, 'llspylibs', PLAT, 'bin')
+        binPath = os.path.abspath(binPath)
         if not os.path.isdir(binPath):
-            thisDirectory = os.path.dirname(__file__)
-            binPath = os.path.join(thisDirectory, os.pardir, os.pardir, 'llspylibs', PLAT, 'bin')
-            binPath = os.path.abspath(binPath)
+            if os.environ.get('CONDA_PREFIX', False):
+                base = os.environ['CONDA_PREFIX']
+                if PLAT == 'win32':
+                    binPath = os.path.join(base, 'Library', 'bin')
+                else:
+                    binPath = os.path.join(base, 'bin')
+            else:
+                binPath = ''
 
     # get specific binary by platform
     binary = os.path.join(binPath, name)
@@ -126,10 +127,12 @@ cudaDeconSchema = Schema({
     'saveDeskewedRaw': Coerce(bool),
     'crop': All((All(Coerce(int), Range(0, 2000)),), Length(min=6, max=6)),
     'MIP': All((intbool,), Length(min=3, max=3)),
-    'rMIP': All((intbool,), Length(min=3, max=3)),
     'uint16': Coerce(bool),
-    'bleachCorrection': Coerce(bool),
+	#'rMIP': All((intbool,), Length(min=3, max=3)), #Removed this since it's not an option anymore
+    'NoBleachCorrection': Coerce(bool),
     'DoNotAdjustResForFFT': Coerce(bool),
+	'FlatStart': Coerce(bool),
+	
 }, extra=REMOVE_EXTRA)
 
 
@@ -217,7 +220,8 @@ class CUDAbin(object):
         return self._run_command(cmd, mode='call')
 
     def list_gpus(self):
-        return(self.run('-Q'))
+        #return(self.run('-Q'))
+        return(self.run("--filename-pattern '' --input-dir ./ --otf-file '' --DevQuery"))
 
     # FIXME: combine this with _run_command
     def run(self, cmd):
