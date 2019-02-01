@@ -111,10 +111,10 @@ class CameraROI(np.ndarray):
 	def __array_finalize__(self, obj):
 		if obj is None:
 			return
-		self.left = self[0]
-		self.top = self[1]
-		self.right = self[2]
-		self.bottom = self[3]
+		self.left = self[0].astype(int)
+		self.top = self[1].astype(int)
+		self.right = self[2].astype(int)
+		self.bottom = self[3].astype(int)
 		self.width = abs(self.right - self.left) + 1
 		self.height = abs(self.bottom - self.top) + 1
 
